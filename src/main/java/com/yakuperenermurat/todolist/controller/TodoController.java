@@ -32,10 +32,21 @@ public class TodoController {
     public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
         return ResponseEntity.ok(todoService.updateTodo(id,todo));
     }
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTodo(@PathVariable Long id) {
         todoService.deleteTodoById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/delete-completed")
+    public ResponseEntity<Void> deleteCompletedTodos() {
+        todoService.deleteCompletedTodos();
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/delete-all")
+    public ResponseEntity<Void> deleteAllTodos() {
+        todoService.deleteAllTodos();
+        return ResponseEntity.noContent().build();
+    }
 }
