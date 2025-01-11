@@ -4,8 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TodoDTO {
+public class TodoCreateDTO {
     @NotBlank(message = "Title cannot be empty")
     private String title;
-    private boolean completed;
 }

@@ -1,7 +1,9 @@
 package com.yakuperenermurat.todolist.controller;
 
-import com.yakuperenermurat.todolist.dto.TodoDTO;
+import com.yakuperenermurat.todolist.dto.TodoCreateDTO;
+import com.yakuperenermurat.todolist.dto.TodoUpdateDTO;
 import com.yakuperenermurat.todolist.entity.Todo;
+import com.yakuperenermurat.todolist.response.ApiResponse;
 import com.yakuperenermurat.todolist.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,42 +13,63 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/todos")
-@RequiredArgsConstructor
-
+@RequiredArgsConstructor// Lombok anotasyonu, tüm final değişkenler için constructor (yapıcı metod) oluşturur.
 public class TodoController {
 
     private final TodoService todoService;
 
+    // Tüm To do'ları Listeleme
     @GetMapping
-    public ResponseEntity<List<Todo>> getAllTodos() {
-        return ResponseEntity.ok(todoService.getAllTodos());
+    public ResponseEntity<ApiResponse<List<Todo>>> getAllTodos() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Todos fetched successfully", todoService.getAllTodos()));
     }
+    // Tamamlanan To do'ları Listeleme (DONE)
+    @GetMapping("/done")
+    public ResponseEntity<ApiResponse<List<Todo>>> getDoneTodos() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Completed todos fetched successfully", todoService.getDoneTodos()));
+    }
+
+    // Tamamlanmamış To do'ları Listeleme (TODO)
+    @GetMapping("/todo")
+    public ResponseEntity<ApiResponse<List<Todo>>> getPendingTodos() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "Pending todos fetched successfully", todoService.getPendingTodos()));
+    }
+
+    // Yeni To do Ekleme
     @PostMapping
-    public ResponseEntity<Todo> createTodo(@RequestBody TodoDTO todoDTO) {
+    public ResponseEntity<ApiResponse<Todo>> createTodo(@RequestBody TodoCreateDTO todoCreateDTO) {
         Todo todo = new Todo();
-        todo.setTitle(todoDTO.getTitle());
-        todo.setCompleted(todoDTO.isCompleted());
-        return ResponseEntity.ok(todoService.createTodo(todo));
+        todo.setTitle(todoCreateDTO.getTitle());
+        todo.setCompleted(false);
+        Todo createdTodo = todoService.createTodo(todo);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Todo created successfully", createdTodo));
     }
+
+    // Bir To do Güncelleme
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodo(@PathVariable Long id, @RequestBody Todo todo) {
-        return ResponseEntity.ok(todoService.updateTodo(id,todo));
+    public ResponseEntity<ApiResponse<Todo>> updateTodo(@PathVariable Long id, @RequestBody TodoUpdateDTO todoUpdateDTO) {
+        Todo updatedTodo = todoService.updateTodo(id, todoUpdateDTO );
+        return ResponseEntity.ok(new ApiResponse<>(true, "Todo updated successfully", updatedTodo));
     }
+
+    // Bir To do Silme
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTodo(@PathVariable Long id) {
         todoService.deleteTodoById(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Todo deleted successfully"));
     }
 
+    // Tamamlanan To do'ları Silme
     @DeleteMapping("/delete-completed")
-    public ResponseEntity<Void> deleteCompletedTodos() {
+    public ResponseEntity<ApiResponse<Void>> deleteCompletedTodos() {
         todoService.deleteCompletedTodos();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Completed todos deleted successfully"));
     }
 
+    // Tüm To do'ları Silme
     @DeleteMapping("/delete-all")
-    public ResponseEntity<Void> deleteAllTodos() {
+    public ResponseEntity<ApiResponse<Void>> deleteAllTodos() {
         todoService.deleteAllTodos();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>(true, "All todos deleted successfully"));
     }
 }

@@ -1,0 +1,48 @@
+version: '3.8'  # Docker Compose'un sürümünü belirtiyoruz.
+
+services:  # Hizmetleri tanımlıyoruz.
+
+  # PostgreSQL Servisi
+  postgres:
+    image: postgres:latest  # En güncel PostgreSQL imajını kullanıyoruz.
+    container_name: todo-postgres  # Container'a özel bir isim veriyoruz.
+
+    environment:  # PostgreSQL için çevresel değişkenler.
+      POSTGRES_DB: todolistdb           # Veritabanı ismi
+      POSTGRES_USER: postgres           # Veritabanı kullanıcı adı
+      POSTGRES_PASSWORD: password       # Veritabanı şifresi (Güvenlik için daha güçlü kullanılmalı)
+
+    ports:
+      - "5433:5432"  #  HOST:CONTAINER şeklinde, dışarıdan 5433 portu kullanılıyor ,Container İçinde → Port 5432 ,Host (yerel makinenizde) → Port 5433
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Veritabanı verilerini kalıcı hale getiren volume (kalıcı depolama)
+
+    restart: always  # Container durduğunda veya sistem yeniden başlatıldığında otomatik olarak başlatır.
+
+  # Spring Boot Uygulaması Servisi
+  todo-app:
+    build:
+      context: .               # Dockerfile mevcut dizinde
+      dockerfile: Dockerfile   # Kullanılacak Dockerfile dosyası
+    container_name: todo-app   # Container için özel bir isim veriyoruz.
+
+    ports:
+      - "8080:8080"  # Spring Boot uygulaması için varsayılan port (8080)
+
+    depends_on:
+      - postgres  # PostgreSQL konteyneri olmadan Spring Boot başlamaz.
+
+    environment:  # Spring Boot için çevresel değişkenler (PostgreSQL bağlantısı için)
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/todolistdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update  # Otomatik tablo güncellemeleri (Geliştirme için)
+
+    restart: always  # Container durduğunda veya sistem yeniden başlatıldığında otomatik olarak başlatır.
+
+volumes:
+  # PostgreSQL verilerini kalıcı olarak saklayan volume tanımı
+  postgres_data:
+    driver: local

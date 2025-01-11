@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: ${DB_URL} # PostgreSQL veritabanı bağlantı URL'si (docker-compose ile aynı)
+    username: ${DB_USERNAME}  # PostgreSQL kullanıcı adı
+    password: ${DB_PASSWORD}  # PostgreSQL şifresi (Güvenlik için daha güçlü kullanılmalı)
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      # `update`: Tabloyu mevcut şemaya göre günceller, veri kaybı yaşamaz.
+      # `create`: Her başlatmada tabloyu sıfırdan oluşturur (veri kaybı yaşanır).
+      # `validate`: Sadece mevcut şema ile veritabanını doğrular, değişiklik yapmaz.
+      # `none`: Hibernate, şema oluşturmaz.
+
+    show-sql: true  # Konsolda SQL sorgularının görünmesini sağlar (Debug için).
+    database-platform: org.hibernate.dialect.PostgreSQLDialect  #  PostgreSQL için dialect eklendi.
+
+  sql:
+    init:
+      mode: always
+      # Veritabanı başlatıldığında SQL dosyalarını çalıştırır.
+      # `always`: Her başlatmada çalışır.
+      # `embedded`: Sadece gömülü veritabanları için çalışır.
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
